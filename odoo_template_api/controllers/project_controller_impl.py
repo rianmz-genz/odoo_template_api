@@ -3,17 +3,14 @@ from . import base_controller
 import math
 class Index(base_controller.BaseController):
     def get_project_by_id(self, id):
-        Project = self.Model('project.task')
-        project = Project.search([
+        project = self.Project().search([
             ("id", "=", int(id))
         ])
         if not project or len(project) == 0:
             return False
         return project
     
-    def get_all(self, kw):
-        Project = self.Model('project.task')
-        
+    def get_all_project_impl(self, kw):
         page = kw.get('page', 1)
         limit = kw.get('limit', 10)
         field = kw.get('field', 'id')
@@ -38,7 +35,7 @@ class Index(base_controller.BaseController):
             domain.append(('name', 'ilike', kw['name']))
 
         
-        projects = Project.search(
+        projects = self.Project().search(
             domain, offset=offset, limit=limit, order=field + ' ' + orderBy)
 
         response = []
@@ -48,7 +45,7 @@ class Index(base_controller.BaseController):
                 'name': project.name,
             })
 
-        total_count = Project.search_count(domain)
+        total_count = self.Project().search_count(domain)
         total_pages = math.ceil(total_count / limit)
         meta = {
             'page': page,
@@ -60,15 +57,14 @@ class Index(base_controller.BaseController):
         
         return self.res_json_meta(response, True, "Success Get All", meta)
 
-    def create_project(self, kw):
+    def create_project_impl(self, kw):
         validation_result = self.validate(kw, ['name'])
         if validation_result:
             return validation_result
         
         name = kw.get('name')
-        Project = self.Model('project.task')
         
-        new_project = Project.create({
+        new_project = self.Project().create({
             'name': name
         })
         
@@ -79,7 +75,7 @@ class Index(base_controller.BaseController):
         
         return self.res_json(response, True, "Success create project")
     
-    def get_one(self,  id, kw):
+    def get_one_project_impl(self,  id, kw):
         project = self.get_project_by_id(id)
         if not project:
             return self.res_json({}, False, "Project not found")
@@ -91,7 +87,7 @@ class Index(base_controller.BaseController):
         
         return self.res_json(response, True, "Success get project")
 
-    def update_project(self, id, kw):
+    def update_project_impl(self, id, kw):
         validation_result = self.validate(kw, ['name'])
         if validation_result:
             return validation_result
@@ -110,7 +106,7 @@ class Index(base_controller.BaseController):
         
         return self.res_json(response, True, "Success update project")
 
-    def delete_project(self, id, kw):
+    def delete_project_impl(self, id, kw):
     
         project = self.get_project_by_id(id)
         if not project:

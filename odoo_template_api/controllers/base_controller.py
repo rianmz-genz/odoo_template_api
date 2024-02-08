@@ -5,7 +5,9 @@ import json
 import logging
 class BaseController(http.Controller):
     _name = 'basecontroller'
+    
     logger = logging.getLogger(__name__)
+    
     @api.model
     def validate(self, kw, required_fields):
         for field_name in required_fields:
@@ -44,3 +46,11 @@ class BaseController(http.Controller):
                 ), 
                 headers={'Content-Type': 'application/json'}
             )
+        
+    
+    # define model here ...
+    def Project(self):
+        return self.Model('project.task')
+    
+    def User(self):
+        return self.Model('res.users')
